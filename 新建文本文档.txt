@@ -1,0 +1,140 @@
+select 姓名,课程名,成绩
+from 学生,学习,课程,教师,开课
+where 学生.学号=学习.学号
+and 学习.课程号=课程.课程号
+and 课程.课程号=开课.课程号
+and 开课.教师号=教师.教师号
+and 教师姓名='王刚'
+and 成绩>90;
+
+select 姓名,学院名称
+from 学生,学院
+where 学生.学院代码=学院.学院代码
+and not exists
+(	select  *  from 教师,开课
+	where 开课.教师号=教师.教师号
+	and 教师姓名='王刚'
+	and not exists
+	(	select * from 学习
+		where 学生.学号=学习.学号
+		and 学习.课程号=开课.课程号
+	)
+);
+
+select 学号,姓名
+from 学生
+where not exists
+(	select * from 学习,课程
+	where 学生.学号=学习.学号
+	and 学习.课程号=课程.课程号
+	and 课程名='软件工程'
+);
+
+select 学号
+from 学习
+group by 学号
+having count(课程号)>1;
+
+select 姓名,成绩
+from 学生,学习,课程
+where 学生.学号=学习.学号
+and 学习.课程号=课程.课程号
+and 成绩<60
+and 课程名='经济学';
+
+select distinct 学号
+from 学习 as a
+where not exists
+(	select * from 学习 as b
+	where b.学号='T06'
+	and not exists
+	(	select * from 学习 as c
+		where a.学号=c.学号
+		and b.课程号=c.课程号
+	)
+);
+
+select 姓名,学院名称
+from 学生,学院
+where 学生.学院代码=学院.学院代码
+and not exists
+(	select * from 课程
+	where 课程号 in('C3','C4')
+	and not exists
+	(	select * from 学习
+		where 学生.学号=学习.学号
+		and 学习.课程号=课程.课程号
+	)
+);
+
+select 课程号,课程名
+from 课程
+where 课程号 not in
+(	select 课程号
+	from 学生,学习
+	where 姓名='王石'
+	and 学生.学号=学习.学号
+);
+
+select 课程号
+from 课程
+where 课程号 not in
+(	select 课程号
+	from 学习
+	where 学习.课程号=课程.课程号
+);
+
+select 姓名
+from 学生
+where not exists
+(	select * from 课程
+	where not exists
+	(	select * from 学习
+		where 学生.学号=学习.学号
+		and 学习.课程号=课程.课程号
+	)
+);
+
+select 学院名称,avg(成绩) as 平均分
+from 学院,学生,学习,课程
+where 学生.学院代码=学院.学院代码
+and 学生.学号=学习.学号
+and 学习.课程号=课程.课程号
+and 课程名='经济学'
+group by 学院名称
+order by avg(成绩) desc;
+
+select 姓名,学院名称,成绩
+from 学生,学院,学习,课程
+where 学生.学员代码=学院.学员代码
+and 学生.学号=学习.学号
+and 学习.课程号=课程.课程号
+and 课程名='经济学'
+order by 学院名称,成绩 desc;
+
+select 开课.课程号,课程名,教师姓名
+from 课程,开课,教师
+where 课程.课程号=开课.课程号
+and 开课.教师号=教师.教师号
+and 学时 between 30 and 45;
+
+select 姓名
+from 学生,学习,课程
+where 学生.学号=学习.学号
+and 学习.课程号=课程.课程号
+and 课程名='经济学'
+and 成绩 >=all
+(	select 成绩
+	from 学习,课程
+	where 学习.课程号=课程.课程号
+	and 课程名='经济学'
+);
+
+select 课程.课程号,课程名
+from 课程
+where 课程号 in
+(	select 课程号
+	from 学习
+	group by 学习.课程号
+	having count (学习.学号)>5
+);
